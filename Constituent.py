@@ -7,7 +7,7 @@ import os
 os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
 
 
-def Day(facNameList, colList, sqlPrc, endDate):
+def Day(facNameList, sqlPrc, endDate):
     if endDate is None:
         dtNow = dt.datetime.now() - dt.timedelta(days=1)
         endDate = dt.datetime(dtNow.year, dtNow.month, dtNow.day)
@@ -27,7 +27,7 @@ def Day(facNameList, colList, sqlPrc, endDate):
     # for each factor
     for f in range(len(facNameList)):
         facName = facNameList[f]
-        col = colList[f]
+        sql = sqlList[f]
         lastUpdateDate = Public.GetLastUpdateDate(facName, mc)
         tradingDateSet = Public.GetCalendar(lastUpdateDate, endDate)
         mongoDoc = db[facName].find_one({'_id': lastUpdateDate})
@@ -35,7 +35,7 @@ def Day(facNameList, colList, sqlPrc, endDate):
         # save data day by day.
         currentDate = lastUpdateDate + dt.timedelta(days=1)
         while currentDate <= endDate:
-            cursor.execute(sqlPrc.replace('{TRADE_DATE}', currentDate.strftime('%Y-%m-%d')))
+            cursor.execute(sql.replace('{TRADE_DATE}', currentDate.strftime('%Y-%m-%d')))
             dataList = cursor.fetchall()
             isTrade = (currentDate in tradingDateSet)
             # mongoDoc = {}  # if this statement is executed, invalid data will not be filled by previous value
@@ -44,8 +44,8 @@ def Day(facNameList, colList, sqlPrc, endDate):
             mongoDoc['_updateTime'] = dt.datetime.now()
             for record in dataList:
                 symbol = record[1]
-                data = record[col]
-                if data is not None and np.isfinite(data):
+                data = record[3]
+                if data is not None and len(data) > 0:
                     mongoDoc[symbol] = data
             db[facName].save(mongoDoc)
             print(facName + ' ' + str(currentDate))
@@ -55,13 +55,15 @@ def Day(facNameList, colList, sqlPrc, endDate):
     ddd = 0
 
 
-sqlPrc = "SELECT M.TRADE_DATE, CONCAT(I.STK_CODE, '_CS'), M.END_DATE, CLOSE_PRICE, CLOSE_PRICE_RE, RISE_DROP_RANGE_RE / 100, " \
-         "       OPEN_PRICE, OPEN_PRICE_RE, STK_TOT_VALUE, STK_CIR_VALUE, TRADE_VOL, TRADE_AMUT, TURNOVER_RATE, " \
-         "       CASE WHEN M.TRADE_DATE = M.END_DATE THEN 1 ELSE 0 END  " \
-         "FROM UPCENTER.STK_BASIC_PRICE_MID M JOIN  UPCENTER.STK_BASIC_INFO I " \
-         "		ON M.STK_UNI_CODE = I.STK_UNI_CODE AND M.ISVALID = 1 AND I.ISVALID = 1 " \
-         "WHERE M.TRADE_VOL > 0 AND M.TRADE_DATE = TO_DATE('{TRADE_DATE}', 'YYYY-MM-DD') "
-facNameList = ['DAY_CLOSE', 'DAY_RTN', 'DAY_TV', 'DAY_CV', 'DAY_VOL', 'DAY_AMT', 'DAY_TOR', 'DAY_PAU']
-colList = [4, 5, 8, 9, 10, 11, 12, 13]
-Day(facNameList, colList, sqlPrc, endDate=dt.datetime.now())
-
+sqlSwi = "SELECT DATE'{TRADE_DATE}', CONCAT(I.STK_CODE, '_CS'), DATE'{TRADE_DATE}', IC1.INDU_NAME " \
+         "FROM UPCENTER.PUB_COM_INDU_CHAN C  " \
+         "        JOIN UPCENTER.STK_BASIC_INFO I " \
+         "            ON C.ISVALID = 1 AND I.ISVALID = 1 AND C.COM_UNI_CODE = I.COM_UNI_CODE AND C.INDU_SYS_PAR = 15 " \
+         "        JOIN UPCENTER.PUB_INDU_CODE IC  " \
+         "            ON C.ISVALID = 1 AND IC.ISVALID = 1 AND C.INDU_UNI_CODE = IC.INDU_UNI_CODE  " \
+         "        JOIN UPCENTER.PUB_INDU_CODE IC1  " \
+         "            ON IC1.ISVALID = 1 AND IC.ISVALID = 1 AND IC1.INDU_UNI_CODE = IC.FST_INDU_UNI_CODE " \
+         "WHERE C.SUB_START_DATE <= DATE'{TRADE_DATE}' AND (C.SUB_END_DATE > DATE'{TRADE_DATE}' OR C.SUB_END_DATE IS NULL)"
+facNameList = ['CON_SWI1']
+sqlList = [sqlSwi]
+Day(facNameList, sqlSwi, endDate=dt.datetime.now())

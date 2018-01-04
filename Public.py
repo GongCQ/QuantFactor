@@ -301,7 +301,7 @@ def ToDB(dataDict, facName, endDate, updateReportDate=True, mongoClient=None):
     tradingDateSet = GetCalendar(lastUpdateDate, endDate)
     currentDate = lastUpdateDate + dt.timedelta(days=1)
     while currentDate <= endDate:
-        print(currentDate)
+        print(facName + ' ' + str(currentDate))
         currentTick = currentDate.timestamp()
         isTrade = (currentDate in tradingDateSet)
         # locate cursor and fill invalid data passingly
@@ -313,7 +313,7 @@ def ToDB(dataDict, facName, endDate, updateReportDate=True, mongoClient=None):
             for d in range(cursorList[s], len(data) - 1):
                 # filled by previous data if invalid
                 if not np.isfinite(data[d + 1][3]):
-                    data[d + 1] = data[d]
+                    data[d + 1][3] = data[d][3]
                 # =====================================================================
                 if data[d][2] < currentTick:  # an available record
                     if d > cursorList[s]:  # an available and new record

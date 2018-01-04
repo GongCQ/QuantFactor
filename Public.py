@@ -313,7 +313,7 @@ def ToDB(dataDict, facName, endDate, updateReportDate=True, mongoClient=None):
             for d in range(cursorList[s], len(data) - 1):
                 # filled by previous data if invalid
                 if not np.isfinite(data[d + 1][3]):
-                    data[d + 1][3] = data[d][3]
+                    data[d + 1] = data[d]
                 # =====================================================================
                 if data[d][2] < currentTick:  # an available record
                     if d > cursorList[s]:  # an available and new record
@@ -371,7 +371,7 @@ def ToDB(dataDict, facName, endDate, updateReportDate=True, mongoClient=None):
 
     db.cfgUpdate.save({'_id': facName, 'lastUpdateDate': endDate})
 
-def GetLastUpdateDate(facName, dataDict, mongoClient = None):
+def GetLastUpdateDate(facName, mongoClient = None):
     if mongoClient is None:
         mongoConn = GetPara('mongoConn')
         mongoClient = pm.MongoClient(mongoConn)
@@ -396,5 +396,6 @@ def GetCalendar(beginDate, endDate, conn = None):
           "ORDER BY END_DATE"
     cursor = conn.cursor()
     cursor.execute(sql.replace('{BEGIN_DATE}', beginDate.strftime('%Y-%m-%d')).replace('{END_DATE}', endDate.strftime('%Y-%m-%d')))
-    calList = cursor.fetchall()
+    calTupleList = cursor.fetchall()
+    calList = [calTuple[0] for calTuple in calTupleList]
     return set(calList)

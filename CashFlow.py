@@ -13,20 +13,20 @@ def CashFlow():
     db = mc['factor']
 
     # factor
-    configDictList = [{'facName': 'OCF_Q', 'column': 5, 'qfData': 2},        # 季度经营活动现金流
-                      {'facName': 'OCF_QG', 'column': 5, 'qfData': 5},       # 季度经营活动现金流增长率
-                      {'facName': 'OCF_12M', 'column': 5, 'qfData': 3},      # 12个月经营活动现金流
-                      {'facName': 'OCE_12MG', 'column': 5, 'qfData': 6},     # 12个月经营活动现金流增长率
+    configDictList = [{'facName': 'FIN_OCF_Q', 'column': 5, 'qfData': 2},        # 季度经营活动现金流
+                      {'facName': 'FIN_OCF_QG', 'column': 5, 'qfData': 5},       # 季度经营活动现金流增长率
+                      {'facName': 'FIN_OCF_12M', 'column': 5, 'qfData': 3},      # 12个月经营活动现金流
+                      {'facName': 'FIN_OCE_12MG', 'column': 5, 'qfData': 6},     # 12个月经营活动现金流增长率
 
-                      {'facName': 'ICF_Q', 'column': 8, 'qfData': 2},        # 季度投资活动现金流
-                      {'facName': 'ICF_QG', 'column': 8, 'qfData': 5},       # 季度投资活动现金流增长率
-                      {'facName': 'ICF_12M', 'column': 8, 'qfData': 3},      # 12个月投资活动现金流
-                      {'facName': 'ICE_12MG', 'column': 8, 'qfData': 6},     # 12个月投资活动现金流增长率
+                      {'facName': 'FIN_ICF_Q', 'column': 8, 'qfData': 2},        # 季度投资活动现金流
+                      {'facName': 'FIN_ICF_QG', 'column': 8, 'qfData': 5},       # 季度投资活动现金流增长率
+                      {'facName': 'FIN_ICF_12M', 'column': 8, 'qfData': 3},      # 12个月投资活动现金流
+                      {'facName': 'FIN_ICE_12MG', 'column': 8, 'qfData': 6},     # 12个月投资活动现金流增长率
 
-                      {'facName': 'FCF_Q', 'column': 11, 'qfData': 2},       # 季度筹资活动现金流
-                      {'facName': 'FCF_QG', 'column': 11, 'qfData': 5},      # 季度筹资活动现金流增长率
-                      {'facName': 'FCF_12M', 'column': 11, 'qfData': 3},     # 12个月筹资活动现金流
-                      {'facName': 'FCE_12MG', 'column': 11, 'qfData': 6},    # 12个月筹资活动现金流增长率
+                      {'facName': 'FIN_FCF_Q', 'column': 11, 'qfData': 2},       # 季度筹资活动现金流
+                      {'facName': 'FIN_FCF_QG', 'column': 11, 'qfData': 5},      # 季度筹资活动现金流增长率
+                      {'facName': 'FIN_FCF_12M', 'column': 11, 'qfData': 3},     # 12个月筹资活动现金流
+                      {'facName': 'FIN_FCE_12MG', 'column': 11, 'qfData': 6},    # 12个月筹资活动现金流增长率
                      ]
     for configDict in configDictList:
         facName = configDict['facName']
@@ -42,7 +42,7 @@ def CashFlow():
         facDict = {}
         for symbol, data in dataDict.items():
             facDict[symbol] = data[:, [0, 1, 2, column]]
-        Public.ToDB(facDict, facName, endDate=None, updateReportDate=True, mongoClient=mc)
+        Public.ToDB(facDict, facName, endDate=None, updateReportDate=False, mongoClient=mc)
 
 
     ddd = 0

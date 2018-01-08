@@ -108,6 +108,13 @@ def GetYears(date, num):
         yearList.append(dt.datetime(yearList[-1].year - 1, 12, 31))
     return yearList
 
+def Growth(X0, X1) :
+    g = np.nan * np.zeros([len(X0)])
+    for i in range(max(len(X0), len(X1))):
+        r = -np.inf if X1[i] < 0 else ((X1[i] / X0[i] - 1) if X0[i] > 0 else np.inf)
+        g[i] = r
+    return g
+
 def GetDataList(sql, beginDate, endDate, conn = None):
     if conn is None:
         connStr = GetPara('connStr')
@@ -199,7 +206,7 @@ def QuarterFormat(dataList):
         dataDictG[symbol] = GetNanArr()
         dataG = dataDictG[symbol]
         for d in range(4, len(data)):
-            dataG[d] = data[d] / data[d - 4] - 1
+            dataG[d] = Growth(data[d - 4], data[d]) # data[d] / data[d - 4] - 1
             dataG[d][0] = data[d][0]
             dataG[d][2] = data[d][2]
 
@@ -210,7 +217,7 @@ def QuarterFormat(dataList):
         dataDictQG[symbol] = GetNanArr()
         dataQG = dataDictQG[symbol]
         for d in range(4, len(dataQ)):
-            dataQG[d] = dataQ[d] / dataQ[d - 4] - 1
+            dataQG[d] = Growth(dataQ[d - 4], dataQ[d]) # dataQ[d] / dataQ[d - 4] - 1
             dataQG[d][0] = dataQ[d][0]
             dataQG[d][2] = dataQ[d][2]
 
@@ -220,7 +227,7 @@ def QuarterFormat(dataList):
         dataDict12MG[symbol] = GetNanArr()
         data12MG = dataDict12MG[symbol]
         for d in range(4, len(data12M)):
-            data12MG[d] = data12M[d] / data12M[d - 4] - 1
+            data12MG[d] = Growth(data12M[d - 4], data12M[d]) # data12M[d] / data12M[d - 4] - 1
             data12MG[d][0] = data12M[d][0]
             data12MG[d][2] = data12M[d][2]
 
@@ -312,7 +319,7 @@ def ToDB(dataDict, facName, endDate, updateReportDate=True, mongoClient=None):
             data = dataList[s]
             for d in range(cursorList[s], len(data) - 1):
                 # filled by previous data if invalid
-                if not np.isfinite(data[d + 1][3]):
+                if np.isnan(data[d + 1][3]):
                     data[d + 1][3] = data[d][3]
                 # =====================================================================
                 if data[d][2] < currentTick:  # an available record

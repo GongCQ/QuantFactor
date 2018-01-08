@@ -38,7 +38,7 @@ def Day(facNameList, colList, sqlPrc, endDate):
             cursor.execute(sqlPrc.replace('{TRADE_DATE}', currentDate.strftime('%Y-%m-%d')))
             dataList = cursor.fetchall()
             isTrade = (currentDate in tradingDateSet)
-            # mongoDoc = {}  # if this statement is executed, invalid data will not be filled by previous value
+            mongoDoc = {}  # if this statement is executed, invalid data will not be filled by previous value
             mongoDoc['_id'] = currentDate
             mongoDoc['_isTrade'] = isTrade
             mongoDoc['_updateTime'] = dt.datetime.now()

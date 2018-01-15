@@ -65,7 +65,8 @@ def FinDer(configDictList, endDate):
         db.cfgUpdate.save({'_id': facName, 'lastUpdateDate': savedDate})
 
 
-configDictList = [{'facName': 'FFD_ROE_Q',       # ROE（季度）
+configDictList = [
+                  {'facName': 'FFD_ROE_Q',       # ROE（季度）
                    'depFacNameList': ['FIN_NP_Q', 'FIN_TOE_QA'],
                    'EvalFun': lambda x : x[0] / x[1]},
 
@@ -215,3 +216,4 @@ configDictList = [{'facName': 'FFD_ROE_Q',       # ROE（季度）
                   ]
 
 FinDer(configDictList, endDate=dt.datetime.now())
+

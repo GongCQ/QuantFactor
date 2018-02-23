@@ -204,7 +204,23 @@ configDictList = [
 
                   {'facName': 'FDD_EV',   # 总市值+非流动负债合计-货币资金
                    'depFacNameList': ['DAY_TV', 'FIN_TNLL', 'FIN_MC'],
-                   'EvalFun': lambda x: (x[0] + x[1] - x[2])}
+                   'EvalFun': lambda x: (x[0] + x[1] - x[2])},
+
+                  {'facName': 'FFD_LAD',   # 流动资产/流动负债
+                   'depFacNameList': ['FIN_LA', 'FIN_TLL'],
+                   'EvalFun': lambda x: x[0] / x[1]},
+
+                  {'facName': 'FFD_CAR',   # 12个月经营现金净流量/流动负债
+                   'depFacNameList': ['FIN_OCF_12M', 'FIN_TLL'],
+                   'EvalFun': lambda x: x[0] / x[1]},
+
+                  {'facName': 'FFD_TDA',   # 总负债/总资产
+                   'depFacNameList': ['FIN_TL', 'FIN_TA'],
+                   'EvalFun': lambda x: x[0] / x[1]},
+
+                  {'facName': 'FFD_NFALD',   # （流动资产 - 流动负债）/ 长期负债
+                   'depFacNameList': ['FIN_LA', 'FIN_TLL', 'FIN_LTB'],
+                   'EvalFun': lambda x: ((x[0] - x[1]) / x[2])},
 
                   # {'facName': '',   # 总市值/12个月
                   #  'depFacNameList': ['', ''],
